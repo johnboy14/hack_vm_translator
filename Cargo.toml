@@ -1,0 +1,6 @@
+[package]
+name = "hack_vm_translator"
+version = "0.1.0"
+authors = ["johnervine@hotmail.com <johnervine@hotmail.com>"]
+
+[dependencies]
