@@ -3,24 +3,22 @@ use std::path::{Path, PathBuf};
 use std::fs;
 
 fn main() {
+    //Files with .vm extension
+    let mut vm_file_paths: Vec<PathBuf> = vec![];
     if let Some(arg) = env::args().nth(1) {
-        let arg_path = Path::new(&arg);
-        print_vm_file_paths(&arg_path)
+        let arg_path = PathBuf::from(arg);
+        if arg_path.is_dir() {
+            find_with_ext(&arg_path, &mut vm_file_paths)
+        } else {
+            vm_file_paths.push(arg_path)
+        }
     } else {
         panic!("Please provide a File or Directory as your first argument")
     }
+    println!("Translating the following files into {:?}, Hack machine Language", vm_file_paths)
 }
 
-fn print_vm_file_paths(arg_path: &Path) {
-    if arg_path.is_dir() {
-        read_dirs(arg_path)
-    } else {
-        println!("Is Not Dir")
-    }
-}
-
-fn read_dirs(dir: &Path) {
-    let mut vm_file_paths: Vec<PathBuf> = vec![];
+fn find_with_ext(dir: &Path, vec: &mut Vec<PathBuf>) {
     if let Ok(entries) = fs::read_dir(dir) {
         //Retrieve File metadata
         for entry in entries {
@@ -28,7 +26,7 @@ fn read_dirs(dir: &Path) {
                 if let Some(e) = entry.path().extension() {
                     if let Some(exstr) = e.to_str() {
                         match exstr {
-                            "vm" => vm_file_paths.push(entry.path()),
+                            "vm" => vec.push(entry.path()),
                             _ => {}
                         }
                     }
@@ -36,5 +34,4 @@ fn read_dirs(dir: &Path) {
             }
         }
     }
-    println!("{:?}", vm_file_paths);
 }
