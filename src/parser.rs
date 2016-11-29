@@ -4,6 +4,7 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::io::{BufReader};
 
+#[derive(Debug)]
 pub enum CommandType {
     C_ARITHMETIC,
     C_PUSH,
@@ -16,10 +17,11 @@ pub enum CommandType {
     C_CALL
 }
 
+#[derive(Debug)]
 pub struct VMCommand {
     command_type: CommandType,
-    arg1:         String,
-    arg2:         String
+    arg1:         Option<String>,
+    arg2:         Option<String>
 }
 
 pub fn parse_file(vm_file: &PathBuf, com_vec: &mut Vec<VMCommand>) -> io::Result<()> {
@@ -47,7 +49,23 @@ fn is_blank(line: &str) -> bool {
 }
 
 fn new_vm_command(line: &str) -> VMCommand {
-    let spli = line.split_whitespace();
+    let mut spli = line.split_whitespace();
 
-    return VMCommand{command_type: CommandType::C_ARITHMETIC, arg1: "arg1".to_string(), arg2: "arg2".to_string()};
+    let command = match spli.next() {
+        Some("push") => CommandType::C_PUSH,
+        Some("pop")  => CommandType::C_POP,
+        _            => CommandType::C_ARITHMETIC
+    };
+    
+    let arg1 = match spli.next() {
+        Some(a) => Some(a.to_string()),
+        None    => None
+    };
+
+    let arg2 = match spli.next() {
+        Some(a) => Some(a.to_string()),
+        None    => None
+    };
+
+    return VMCommand{command_type: command, arg1: arg1, arg2: arg2};
 }

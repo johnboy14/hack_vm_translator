@@ -21,5 +21,6 @@ fn main() {
         println!("Translating the following file into {:?}, Hack machine Language", vm_file_path);
         let mut vm_commands: Vec<parser::VMCommand> = vec![];
         parser::parse_file(&vm_file_path, &mut vm_commands);
+        println!("{:?}", vm_commands);
     }
 }
