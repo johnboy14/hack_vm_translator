@@ -2,6 +2,7 @@ use std::env;
 use std::path::{PathBuf};
 
 mod file;
+mod parser;
 
 fn main() {
     //Files with .vm extension
@@ -17,6 +18,8 @@ fn main() {
         panic!("Please provide a File or Directory as your first argument")
     }
     for vm_file_path in vm_file_paths {
-        println!("Translating the following file into {:?}, Hack machine Language", vm_file_path)
+        println!("Translating the following file into {:?}, Hack machine Language", vm_file_path);
+        let mut vm_commands: Vec<parser::VMCommand> = vec![];
+        parser::parse_file(&vm_file_path, &mut vm_commands);
     }
 }
