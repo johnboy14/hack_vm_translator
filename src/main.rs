@@ -14,7 +14,7 @@ fn main() {
     if let Some(arg) = env::args().nth(1) {
         let arg_path = PathBuf::from(arg);
         if arg_path.is_dir() {
-            push_entries_with_ext(&arg_path, "vm", &mut vm_file_paths).unwrap();
+            push_entries_with_ext(&arg_path, "vm", &mut vm_file_paths, &push_path_to).unwrap();
         } else {
             vm_file_paths.push(arg_path)
         }
@@ -22,20 +22,6 @@ fn main() {
         panic!("Please provide a File or Directory as your first argument")
     }
     println!("Translating the following files into {:?}, Hack machine Language", vm_file_paths)
-}
-
-pub fn push_entries_with_ext(dir: &Path, ext: &str, buf: &mut Vec<PathBuf>) -> io::Result<()>
-{
-    let dir_iter = try!(fs::read_dir(dir));
-    for maybe_entry in dir_iter {
-        let entry = try!(maybe_entry);
-        if let Some(e) = ext_from_path(&entry.path()) {
-            if ext_match(ext, &e) {
-                buf.push(entry.path());
-            }
-        }
-    }
-    Ok(())
 }
 
 fn ext_from_path<'a>(path: &'a Path) -> Option<&'a OsStr> {
@@ -52,15 +38,21 @@ fn ext_match(ext: &str, other: &OsStr) -> bool {
     }
 }
 
-fn visit_dirs(dir: &Path, ext: &str,  buf: &mut Vec<PathBuf>, cb: &Fn(PathBuf, &mut Vec<PathBuf>)) -> io::Result<()> {
+fn push_entries_with_ext(dir: &Path, ext: &str,  buf: &mut Vec<PathBuf>, cb: &Fn(PathBuf, &mut Vec<PathBuf>)) -> io::Result<()> {
     if dir.is_dir() {
         for entry in try!(fs::read_dir(dir)) {
             let entry = try!(entry);
             let path = entry.path();
             if path.is_dir() {
-                try!(visit_dirs(&path, ext, buf, cb));
+                try!(push_entries_with_ext(&path, ext, buf, cb));
             } else {
-                cb(path, buf);
+                if let Some(e) = ext_from_path(&path) {
+                    if ext_match(ext, &e) {
+                        //cb(path, buf);
+                        cb(entry.path(), buf);
+                    }
+                }
+
             }
         }
     }
