@@ -32,9 +32,8 @@ pub fn parse_file(vm_file: &PathBuf, com_vec: &mut Vec<VMCommand>) -> io::Result
     //read each line
     for line in file_buffer.lines() {
         let l = line.unwrap();
-        if is_comment(&l) == false && is_blank(&l) == false {
+        if !is_comment(&l) && !is_blank(&l) {
             com_vec.push(new_vm_command(&l));
-            println!("{:?}", l);
         }
     }
 
@@ -51,7 +50,6 @@ fn is_blank(line: &str) -> bool {
 
 fn new_vm_command(line: &str) -> VMCommand {
     let mut spli = line.split_whitespace();
-
     let command = spli.next().unwrap();
     let command_type = match command {
         "push" => CommandType::C_PUSH,
@@ -59,12 +57,10 @@ fn new_vm_command(line: &str) -> VMCommand {
         _      => CommandType::C_ARITHMETIC
     };
 
-    let mut arg1;
-    if command_type == CommandType::C_ARITHMETIC {
-        arg1 = command.to_string();
-    } else {
-        arg1 = spli.next().unwrap().to_string();
-    }
+    let arg1 = match command_type {
+        CommandType::C_ARITHMETIC => command.to_string(),
+        _                         => spli.next().unwrap().to_string()
+    };
 
     let arg2 = match spli.next() {
         Some(a) => Some(a.to_string()),
