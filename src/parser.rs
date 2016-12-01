@@ -20,9 +20,9 @@ pub enum CommandType {
 
 #[derive(Debug)]
 pub struct VMCommand {
-    command_type: CommandType,
-    arg1:         String,
-    arg2:         Option<String>
+    pub command_type: CommandType,
+    pub arg1:         String,
+    pub arg2:         Option<String>
 }
 
 pub fn parse_file(vm_file: &PathBuf, com_vec: &mut Vec<VMCommand>) -> io::Result<()> {
